@@ -3,46 +3,27 @@ Python NMEA Toolkit
 A native python interface to NMEA (currently just GPS) devices.
 
 Copyright (c) 2008, Tim Savage
-All rights reserved.
+
+-- About -----------
 
 The toolkit includes the tools record.py and playback.py these tools can be
 used to "record" and "playback" GPS data. The playback includes a simple time
 sync to attempt to maintain a accurate playback.
 
 There is support for both serialport (includes most USB GPS's that use serial
-emulation over USB) and tcpport datasources. Use the TCP port to access a 
+emulation over USB) and tcpport datasources. Use the TCP port to access a
 playback of a GPS data.
 
-The main source tree is stored in my SVN repository:
+This project is hosted on Google Code
 
-https://dev.poweredbypenguins.org/svn/Python/trunk/src/site-packages/nmea/
-
-
-This toolkit depends on the python serial library.
+http://code.google.com/p/python-gpsd/
 
 
-Licence
+-- Installation ----
 
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are met:
+See INSTALL for the steps required to install this toolkit
 
-    * Redistributions of source code must retain the above copyright notice,
-      this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the Tim Savage nor the names of its contributors
-      may be used to endorse or promote products derived from this software 
-      without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-POSSIBILITY OF SUCH DAMAGE.
+-- Licence ---------
+
+See LICENSE for a copy of the valid license
