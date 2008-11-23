@@ -59,7 +59,7 @@ def get_options():
 		help='port read timeout (in seconds)')
 	p.add_option('--plain', action='store_true', default=False,
 		help="file does not contain time deltas")
-	p.add_option('-f', '--file', default='dump.gps',
+	p.add_option('-f', '--file', default='gps.dump',
 		help='file to use for input')
 
 	options, arguments = p.parse_args()
