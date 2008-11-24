@@ -1,4 +1,20 @@
 #!/usr/bin/env python
+#
+# Python GPSD
+# Copyright (C) 2008 Tim Savage
+#
+# Python GPSD is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the
+# Free Software Foundation, either version 3 of the License, or at your option)
+# any later version.
+#
+# Python GPSD is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# python GPSD.  If not, see <http://www.gnu.org/licenses/>.
+
 import dbus
 import dbus.service
 import gobject
@@ -6,46 +22,86 @@ import nmea
 import optparse
 import sys
 
+from dbus.mainloop.glib import DBusGMainLoop
 
-class Gpsd(dbus.service.Object):
-	def __init__(self, object_path):
-		super(Gps, self).__init__(self, dbus.SessionBus(), path)
 
-	@dbus.service.method(dbus_interface='com.poweredbypenguins.gpsd',
-		out_signature='(dd)')
-	def position(self):
-		return (0.1, 0.2)
+GPSD_BUSNAME = 'org.poweredbypenguins.gpsd'
+GPS_OBJECT_NAME = '/org/poweredbypenguins/gpsd/GPS%d'
+GPS_IFACE_NAME = 'org.poweredbypenguins.gpsd.gps'
 
-options = None
+class Gps(dbus.service.Object):
+    def __init__(self, bus, object_path):
+        super(Gps, self).__init__(bus, object_path)
+
+    @dbus.service.method(dbus_interface=GPS_IFACE_NAME,
+        out_signature='dd')
+    def position(self):
+        return (0.1, 0.2)
+
+    @dbus.service.signal(dbus_interface=GPS_IFACE_NAME,
+        signature='(dd)d')
+    def navigate(self, position, track):
+        return (position, track)
+
+
+def create_gps_device(options):
+	""" Create instance of a gps device port """
+	if options == 'serial':
+		pass
+	elif options == 'tcp':
+		pass
+	else:
+		pass
 
 
 def get_options():
-	p = optparse.OptionParser(version='%prog 0.1')
-	p.add_option('-t', '--type', default='serial', choices=['serial', 'tcp'],
-		help='type of port to use: serial or tcp')
-	p.add_option('--timeout', type='int', default=3,
-		help='port read timeout (in seconds)')
+	""" Setup options structure """
+    p = optparse.OptionParser(version='%prog 0.1')
+    p.add_option('-t', '--type', default='serial', choices=['serial', 'tcp'],
+        help='type of port to use: serial or tcp')
+    p.add_option('--timeout', type='int', default=3,
+        help='port read timeout (in seconds)')
 
-	g = optparse.OptionGroup(p, 'Serial Backend')
-	g.add_option('--device', default='/dev/gps',
-		help='device file of serial port connected to GPS')
-	g.add_option('--baud', type='int', default=4800)
-	p.add_option_group(g)
+    g = optparse.OptionGroup(p, 'Serial Backend')
+    g.add_option('--device', default='/dev/gps',
+        help='device file of serial port connected to GPS')
+    g.add_option('--baud', type='int', default=4800)
+    p.add_option_group(g)
 
-	g = optparse.OptionGroup(p, 'TCP Backend')
-	g.add_option('--host', default='localhost')
-	g.add_option('--port', type='int', default=11000)
-	p.add_option_group(g)
+    g = optparse.OptionGroup(p, 'TCP Backend')
+    g.add_option('--host', default='localhost')
+    g.add_option('--port', type='int', default=11000)
+    p.add_option_group(g)
 
-	options, arguments = p.parse_args()
-	return options
+    options, arguments = p.parse_args()
+    return options
 
 
 def main():
-	options = get_options()
+    options = get_options()
 
-	# Set the dbus loop as the default
-	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    # Setup main loop
+    mainLoop = DBusGMainLoop(set_as_default=True)
+
+    # Attach to bus and register name
+    bus = dbus.SessionBus()
+    if bus.name_has_owner(GPSD_BUSNAME):
+        print >> sys.stderr, "GPSD name already registered on the BUS"
+        return 1
+    else:
+        bus.request_name(GPSD_BUSNAME)
+
+    # Create GPS object
+    gps0 = Gps(bus, GPS_OBJECT_NAME % 0)
+
+    # Start event loop
+    loop = gobject.MainLoop()
+    try:
+        loop.run()
+    except KeyboardInterrupt:
+        pass
+
+    return 0
 
 
 if __name__ == '__main__':
