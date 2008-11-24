@@ -25,43 +25,54 @@ import sys
 from dbus.mainloop.glib import DBusGMainLoop
 
 
-GPSD_BUSNAME = 'org.poweredbypenguins.gpsd'
-GPS_OBJECT_NAME = '/org/poweredbypenguins/gpsd/GPS%d'
+GPSD_BUS_NAME = 'org.poweredbypenguins.gpsd'
+GPS_OBJECT_PATH = '/org/poweredbypenguins/gpsd/GPS%d'
 GPS_IFACE_NAME = 'org.poweredbypenguins.gpsd.gps'
 
 class Gps(dbus.service.Object):
-    def __init__(self, bus, object_path):
+    def __init__(self, gps_device, bus, object_path):
         super(Gps, self).__init__(bus, object_path)
-
+        self.gps_device = gps_device
+        
     @dbus.service.method(dbus_interface=GPS_IFACE_NAME,
         out_signature='dd')
     def position(self):
         return (0.1, 0.2)
 
     @dbus.service.signal(dbus_interface=GPS_IFACE_NAME,
-        signature='(dd)d')
-    def navigate(self, position, track):
-        return (position, track)
+        signature='(dd)di')
+    def navigate(self, position, track, speed):
+        return (position, track, speed)
 
 
 def create_gps_device(options):
-	""" Create instance of a gps device port """
-	if options == 'serial':
-		pass
-	elif options == 'tcp':
-		pass
-	else:
-		pass
+    """ Create instance of a gps device port """
+    if options == 'serial':
+        from nmea.serialport import SerialPort
+        return SerialPort(
+            device=options.device,
+            baud=options.baud,
+            timeout=options.timeout)
+    elif options == 'tcp':
+        from nmea.tcpport import TcpPort
+        return TcpPort(
+            host=options.host,
+            port=options.port,
+            timeout=options.timeout)
+    else:
+        return None
 
 
 def get_options():
-	""" Setup options structure """
+    """ Setup options structure """
     p = optparse.OptionParser(version='%prog 0.1')
     p.add_option('-t', '--type', default='serial', choices=['serial', 'tcp'],
         help='type of port to use: serial or tcp')
     p.add_option('--timeout', type='int', default=3,
         help='port read timeout (in seconds)')
-
+    p.add_option('--trigger', default='gsv',
+        help='message type that triggers position update')
+        
     g = optparse.OptionGroup(p, 'Serial Backend')
     g.add_option('--device', default='/dev/gps',
         help='device file of serial port connected to GPS')
@@ -85,14 +96,14 @@ def main():
 
     # Attach to bus and register name
     bus = dbus.SessionBus()
-    if bus.name_has_owner(GPSD_BUSNAME):
+    if bus.name_has_owner(GPSD_BUS_NAME):
         print >> sys.stderr, "GPSD name already registered on the BUS"
         return 1
     else:
-        bus.request_name(GPSD_BUSNAME)
+        bus.request_name(GPSD_BUS_NAME)
 
     # Create GPS object
-    gps0 = Gps(bus, GPS_OBJECT_NAME % 0)
+    gps0 = Gps(None, bus, GPS_OBJECT_PATH % 0)
 
     # Start event loop
     loop = gobject.MainLoop()

@@ -24,10 +24,10 @@ from _port import *
 class TcpPort(Port):
     """ TCP instance of the GPS port """
 
-    def __init__(self, address='localhost', port=11000, timeout=3):
+    def __init__(self, host='localhost', port=11000, timeout=3):
         super(TcpPort, self).__init__()
         self.sock = None
-        self.address = (address, port)
+        self.address = (host, port)
         self.timeout = timeout
         self.__open()
 
