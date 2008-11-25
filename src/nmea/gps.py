@@ -4,7 +4,7 @@
 # This file is part of the NMEA Toolkit.
 #
 # The NMEA Toolkit is free software: you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published by the
+# under the terms of the GNU General Public License as published by the
 # Free Software Foundation, either version 3 of the License, or at your option)
 # any later version.
 #
@@ -13,8 +13,8 @@
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
 #
-# You should have received a copy of the GNU Lesser General Public License along
-# with the NMEA Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with
+# the NMEA Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 
@@ -35,10 +35,14 @@ FIXQUALITY_DIFF = 2  # Differential GPS fix
 
 
 def excepted(f, *param):
-    try: f(*param)
-    except KeyboardInterrupt: raise
-    except: return True
-    return False
+    try:
+        f(*param)
+    except KeyboardInterrupt:
+        raise
+    except:
+        return True
+    else:
+        return False
 
 
 class GPS(object):
@@ -74,7 +78,7 @@ class GPS(object):
         """ Print out an error message to stderr """
         print >> sys.stderr, "ERROR:", message
 
-    def handle_io(self, soureFd=None, cb_condition=0):
+    def handle_io(self, sourceFd=None, cb_condition=0):
         """ Call on loop to perform io operation
 
         Can be assigned to a idle callback in the case
@@ -89,7 +93,7 @@ class GPS(object):
         except KeyboardInterrupt:
             raise
         except: # Use instead of finally as we want to handle keyboard interrupts
-            self.error_message("Unknown error")
+            self.error_message("Unknown error: " + str(sys.exc_value))
         return True
 
     def parse_data(self):
@@ -116,25 +120,29 @@ class GPS(object):
                     mname = '_parse_' + sentence.message
                     if hasattr(self, mname):
                         method = getattr(self, mname)
-                        if excepted(method, sentence): print "Parse Error:", line
-                    else: self.error_message("Unknown message")
+                        if excepted(method, sentence):
+                            ex_type, ex_value, ex_traceback = sys.exc_info()
+                            sys.exc_clear()
+                            print "Parse Error:", ex_value
+                    else:
+                        self.error_message("Unknown message")
 
-    def _on_fix_update(self):
+    def __on_fix_update(self):
         if self.fix_update:
             if excepted(self.fix_update, self):
                 self.error_message('"fix_update" raised an exception')
 
-    def _on_transit_update(self):
+    def __on_transit_update(self):
         if self.transit_update:
             if excepted(self.transit_update, self):
                 self.error_message('"transit_update" raised an exception')
 
-    def _on_satellite_update(self):
+    def __on_satellite_update(self):
         if self.satellite_update:
             if excepted(self.satellite_update, self):
                 self.error_message('"satellite_update" raised an exception')
 
-    def _on_satellite_status_update(self):
+    def __on_satellite_status_update(self):
         if self.satellite_status_update:
             if excepted(self.satellite_status_update, self):
                 self.error_message('"satellite_status_update" raised an exception')
@@ -149,7 +157,7 @@ class GPS(object):
 
         # Call updated method
         if fixQuality != self.fixQuality:
-            self._on_fix_update()
+            self.__on_fix_update()
 
     def _parse_GSA(self, sentence):
         """ Parse "GPS DOP and Active Satellites" sentence """
@@ -168,8 +176,10 @@ class GPS(object):
             sat.in_use = prn in self.satellitesInUse
 
         # Raise events
-        if fixType != self.fixType: self._on_fix_update()
-        if len(self.satellites): self._on_satellite_status_update()
+        if fixType != self.fixType:
+            self.__on_fix_update()
+        if len(self.satellites):
+            self.__on_satellite_status_update()
 
     def _parse_GSV(self, sentence):
         """ Parse "GPS Satellites in View" sentence """
@@ -195,7 +205,7 @@ class GPS(object):
         # Raise update satellite cache and raise events
         if msgNumber == totalMsgs:
             self.satellites = self.__satellites
-            self._on_satellite_status_update()
+            self.__on_satellite_status_update()
 
     def _parse_RMC(self, sentence):
         """ Parse "Recommended Minimum Specific GPS/TRANSIT Data" sentence """
@@ -203,7 +213,7 @@ class GPS(object):
 
         self.fixTime = sentence.get_time(0)
         self.position = sentence.get_latlng(2)
-        self.speed = sentence.get_float(6, 0.0)
+        self.speed = sentence.get_velocity(6, 0.0)
         self.track = sentence.get_float(7, 0.0)
         self.fixDate = sentence.get_date(8)
         self.trackVariation = sentence.get_float(9, 0.0)
@@ -212,7 +222,7 @@ class GPS(object):
 
         # Call updated method
         if self.fixType > 1:
-            self._on_transit_update()
+            self.__on_transit_update()
 
 
 
@@ -223,14 +233,14 @@ if __debug__ and __name__ == '__main__':
     #port = serialport.SerialPort(port='/dev/ttyUSB0')
 
     def position_callback(gps):
-        print gps.position
+        print "Position", gps.position, "; Speed", gps.speed.kmph()
 
     def fix_callback(gps):
-        print "Fix Quality:", gps.fixQuality, "Type", gps.fixType
+        print "Fix Quality:", gps.fixQuality, "; Type", gps.fixType
 
     gpsCallbacks = {
         'fix_update': fix_callback,
-        'transit_update': position_callback
+        'transit_update': position_callback,
     }
 
     try:

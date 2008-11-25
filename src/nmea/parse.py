@@ -4,7 +4,7 @@
 # This file is part of the NMEA Toolkit.
 #
 # The NMEA Toolkit is free software: you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published by the
+# under the terms of the GNU General Public License as published by the
 # Free Software Foundation, either version 3 of the License, or at your option)
 # any later version.
 #
@@ -13,8 +13,8 @@
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
 #
-# You should have received a copy of the GNU Lesser General Public License along
-# with the NMEA Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with
+# the NMEA Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 
 import array
 import datetime
@@ -102,17 +102,25 @@ class Sentence(object):
 
     def get_int(self, index, default=None):
         """ Get an int item """
+        value = self._words[index]
+        if len(value) == 0: return default
         try:
-            return int(self._words[index])
+            return int(value)
         except ValueError:
-            return default
+            raise ParseError("Word is not an int")
 
     def get_float(self, index, default=None):
         """ Get an float item """
+        value = self._words[index]
+        if len(value) == 0: return default
         try:
-            return float(self._words[index])
+            return float(value)
         except ValueError:
-            return default
+            raise ParseError("Word is not a float")
+
+    def get_velocity(self, index, default=None):
+        """ Get a velocity item """
+        return velocity(self.get_float(index, default))
 
     def get_latlng(self, startIndex):
         """ Get a latlng value, startIndex (covers 4 words) """
@@ -123,7 +131,7 @@ class Sentence(object):
             lat = float(value[:2]) + float(value[2:]) / 60
             if self._words[startIndex + 1] == 'S': lat *= -1
         except ValueError:
-            pass
+            raise ParseError("Words are not a latitude")
 
         # Parse Longitude
         lng = 0.0
@@ -132,7 +140,7 @@ class Sentence(object):
             lng = float(value[:3]) + float(value[3:]) / 60
             if self._words[startIndex + 3] == 'W': lng *= -1
         except ValueError:
-            pass
+            raise ParseError("Words are not a longitude")
 
         return latlng((lat, lng))
 
@@ -157,7 +165,7 @@ class Sentence(object):
             else:
                 fraction = 0
         except ValueError:
-            return default
+            raise ParseError("Word is not a valid time")
         return datetime.time(hour, minute, second, int(1000000 * fraction), utc)
 
     def get_date(self, index, default=None):
@@ -170,7 +178,7 @@ class Sentence(object):
             # Assume after the year 2000
             year = 2000 + int(value[4:6])
         except ValueError:
-            return default
+            raise ParseError("Word is not a valid date")
         return datetime.date(year, month, day)
 
     def get_list(self, startIndex, length):

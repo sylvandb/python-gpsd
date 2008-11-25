@@ -5,7 +5,7 @@
 # This file is part of the NMEA Toolkit.
 #
 # The NMEA Toolkit is free software: you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published by the
+# under the terms of the GNU General Public License as published by the
 # Free Software Foundation, either version 3 of the License, or at your option)
 # any later version.
 #
@@ -14,8 +14,8 @@
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
 #
-# You should have received a copy of the GNU Lesser General Public License along
-# with the NMEA Toolkit.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along with
+# the NMEA Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 
 import decimal
 import math
@@ -161,6 +161,28 @@ class satellite(object):
         return (self.prn, self.elevation, self.azimuth, self.snr)
 
 
+class velocity(float):
+    """ Speed value """
+
+    def knots(self):
+        """ value in knots """
+        return self
+
+    def kilometers_per_hour(self):
+        """ value in kilometers per hour """
+        return self * 1.852
+    kmph = kilometers_per_hour 
+
+    def meters_per_second(self):
+        """ value in meters per second """
+        return self * 0.514444444
+
+    def miles_per_hour(self):
+        """ value in miles per hour """
+        return self * 1.15077945
+    mph = miles_per_hour
+
+
 # Unit test
 if __debug__ and __name__ == '__main__':
 
@@ -168,11 +190,15 @@ if __debug__ and __name__ == '__main__':
     ll2 = latlng((-27.479298333, -153.042548333))
     sat = satellite((12, 45, 203, 58))
     sat2 = satellite(sat)
+    speed = velocity(15.6)
     print ll
     print ll2
     print ll == ll2
     print sat
     print sat2
+    print speed.mph(), 'm/h'
+    print speed.kmph(), 'km/h'
+    print speed.meters_per_second(), 'm/s'
 
     del ll
     del ll2
