@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License along with
 # the NMEA Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = (0, 1, 1)
-__author__ = 'tim@poweredbypenguins.org (Tim Savage)'
+__version__ = '0.2'
+__author__ = 'tim+python-gpsd@poweredbypenguins.org (Tim Savage)'
 
 import select
 import sys
@@ -48,7 +48,7 @@ def workLoop(ser, plain):
 
 
 def get_options():
-    p = optparse.OptionParser(version="%prog 0.1.1")
+    p = optparse.OptionParser(version="%prog " + __version__)
     #p.add_option('-t', '--type', default='serial', choices=['serial', 'tcp'],
     #   help='type of port backend to use: serial or tcp')
     p.add_option('-x','--plain', action='store_true', default=False,

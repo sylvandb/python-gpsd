@@ -21,19 +21,6 @@ import sys
 from parse import *
 
 
-FIXMODE_UNKNOWN = ''
-FIXMODE_AUTO   = 'A'
-FIXMODE_MANUAL = 'M'
-
-FIXTYPE_NA = 1  # Fix not available
-FIXTYPE_2D = 2  # 2D Fix
-FIXTYPE_3D = 3  # 3D Fix
-
-FIXQUALITY_NA   = 0  # Not available/invalid
-FIXQUALITY_GPS  = 1  # GPS Fix
-FIXQUALITY_DIFF = 2  # Differential GPS fix
-
-
 def excepted(f, *param):
     try:
         f(*param)
@@ -130,22 +117,30 @@ class GPS(object):
     def __on_fix_update(self):
         if self.fix_update:
             if excepted(self.fix_update, self):
-                self.error_message('"fix_update" raised an exception')
+                ex_type, ex_value, ex_traceback = sys.exc_info()
+                sys.exc_clear()
+                self.error_message('"fix_update" raised an exception: ' + str(ex_value))
 
     def __on_transit_update(self):
         if self.transit_update:
             if excepted(self.transit_update, self):
-                self.error_message('"transit_update" raised an exception')
+                ex_type, ex_value, ex_traceback = sys.exc_info()
+                sys.exc_clear()
+                self.error_message('"transit_update" raised an exception: ' + str(ex_value))
 
     def __on_satellite_update(self):
         if self.satellite_update:
             if excepted(self.satellite_update, self):
-                self.error_message('"satellite_update" raised an exception')
+                ex_type, ex_value, ex_traceback = sys.exc_info()
+                sys.exc_clear()
+                self.error_message('"satellite_update" raised an exception: ' + str(ex_value))
 
     def __on_satellite_status_update(self):
         if self.satellite_status_update:
             if excepted(self.satellite_status_update, self):
-                self.error_message('"satellite_status_update" raised an exception')
+                ex_type, ex_value, ex_traceback = sys.exc_info()
+                sys.exc_clear()
+                self.error_message('"satellite_status_update" raised an exception: ' + str(ex_value))
 
     def _parse_GGA(self, sentence):
         """ Parse "Global Positioning System Fix Data" sentence """

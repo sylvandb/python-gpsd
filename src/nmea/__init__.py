@@ -18,5 +18,18 @@
 
 from _types import *
 
-__version__ = (0, 10)
-__author__ = 'tim@poweredbypenguins.org (Tim Savage)'
+__version__ = '0.2'
+__author__ = 'tim+python-gpsd@poweredbypenguins.org (Tim Savage)'
+
+
+FIXMODE_UNKNOWN = ''
+FIXMODE_AUTO   = 'A'
+FIXMODE_MANUAL = 'M'
+
+FIXTYPE_NA = 1  # Fix not available
+FIXTYPE_2D = 2  # 2D Fix
+FIXTYPE_3D = 3  # 3D Fix
+
+FIXQUALITY_NA   = 0  # Not available/invalid
+FIXQUALITY_GPS  = 1  # GPS Fix
+FIXQUALITY_DIFF = 2  # Differential GPS fix
