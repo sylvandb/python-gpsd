@@ -32,7 +32,7 @@ def excepted(f, *param):
         return False
 
 
-class GPS(object):
+class Gps(object):
 
     def __init__(self, port, callbacks=None):
         self.port = port
@@ -200,7 +200,7 @@ class GPS(object):
         # Raise update satellite cache and raise events
         if msgNumber == totalMsgs:
             self.satellites = self.__satellites
-            self.__on_satellite_status_update()
+            self.__on_satellite_update()
 
     def _parse_RMC(self, sentence):
         """ Parse "Recommended Minimum Specific GPS/TRANSIT Data" sentence """
