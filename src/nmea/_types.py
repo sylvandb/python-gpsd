@@ -162,7 +162,7 @@ class satellite(object):
 
 
 class velocity(float):
-    """ Speed value """
+    """ Speed value (default is knots to match nmea spec) """
 
     def knots(self):
         """ value in knots """
