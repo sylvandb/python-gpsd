@@ -19,7 +19,8 @@
 import array
 import datetime
 
-from nmea import *
+from __types import *
+from __constants import *
 
 
 class ParseError(StandardError):

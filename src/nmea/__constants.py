@@ -16,8 +16,15 @@
 # You should have received a copy of the GNU General Public License along with
 # the NMEA Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 
-from __types import *
-from __constants import *
 
-__version__ = '0.2'
-__author__ = 'tim+python-gpsd@poweredbypenguins.org (Tim Savage)'
+FIXMODE_UNKNOWN = ''
+FIXMODE_AUTO   = 'A'
+FIXMODE_MANUAL = 'M'
+
+FIXTYPE_NA = 1  # Fix not available
+FIXTYPE_2D = 2  # 2D Fix
+FIXTYPE_3D = 3  # 3D Fix
+
+FIXQUALITY_NA   = 0  # Not available/invalid
+FIXQUALITY_GPS  = 1  # GPS Fix
+FIXQUALITY_DIFF = 2  # Differential GPS fix
