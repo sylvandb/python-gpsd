@@ -92,7 +92,7 @@ class longitude(float):
         return "%03.3f" % self
 
     def __str__(self):
-        result = "%03i°%02i'%02f\"" % to_dms(self, True)
+        result = "%03i°%02i\'%02f\"" % to_dms(self, True)
         if self < 0: return result + 'W'
         else: return result + 'E'
 
