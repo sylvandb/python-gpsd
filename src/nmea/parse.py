@@ -80,9 +80,9 @@ class Sentence(object):
         except TypeError:
             return self._words[indexOrSlice.start:indexOrSlice.stop]
 
-    def __iter__(self):
-        """ Get iterator (ie for word in sentence: ) """
-        return iter(self._words)
+#    def __iter__(self):
+#        """ Get iterator (ie for word in sentence: ) """
+#        return iter(self._words)
 
     def __len__(self):
         """ Get length of sentence """
@@ -185,15 +185,3 @@ class Sentence(object):
         """ Get a list of values """
         return self._words[startIndex:startIndex+length]
 
-
-
-# Unit test
-if __name__ == '__main__':
-    s = Sentence('$GPRMC,111748.500,A,2728.7584,S,15302.5527,E,0.06,316.85,160506,,*1B')
-    print "Source:", s.source, "; Message:", s.message
-    print "Speed:", s.get_float(6)
-    print "Diff:", s.get_float(9)
-    print "Pos:", s.get_latlng(2)
-    print "Date:", s.get_date(8)
-    print "Time:", s.get_time(0)
-    del s

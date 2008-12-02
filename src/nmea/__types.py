@@ -103,7 +103,7 @@ class latlng(object):
     __slots__ = ['lat', 'lng'] # Define available parameters
 
     def __init__(self, value):
-        if isinstance(value, tuple):
+        if isinstance(value, tuple) and len(value) == 2:
             (lat, lng) = value
             self.lat = latitude(lat)
             self.lng = longitude(lng)
@@ -182,24 +182,3 @@ class velocity(float):
         return self * 1.15077945
     mph = miles_per_hour
 
-
-# Unit test
-if __debug__ and __name__ == '__main__':
-
-    ll = latlng((-27.479298333, -153.042548333))
-    ll2 = latlng((-27.479298333, -153.042548333))
-    sat = satellite((12, 45, 203, 58))
-    sat2 = satellite(sat)
-    speed = velocity(15.6)
-    print ll
-    print ll2
-    print ll == ll2
-    print sat
-    print sat2
-    print speed.mph(), 'm/h'
-    print speed.kmph(), 'km/h'
-    print speed.meters_per_second(), 'm/s'
-
-    del ll
-    del ll2
-    del sat
