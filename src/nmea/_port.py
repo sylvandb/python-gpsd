@@ -24,12 +24,11 @@ class PortError(Exception):
 class StreamBuffer(object):
 
     def __init__(self, terminator='\r\n'):
-        #super(StreamBuffer, self).__init__()
         self.terminator = terminator
         self.__buffer = ''
 
     def append(self, data):
-        """ Append data to buffer, returns an array of seperated by the terminator. """
+        """ Append data to buffer, returns an array seperated by the terminator. """
         if len(data) == 0:
             return []
 
@@ -51,7 +50,6 @@ class StreamBuffer(object):
 class Port(object):
     """ ABS class for a nmea port """
     def __init__(self):
-        #super(Port, self).__init__()
         self.__buffer = None
 
     def fileno(self):
@@ -69,7 +67,7 @@ class Port(object):
         """
         raise NotImplementedError
 
-    def read_buffered(self, size=128):
+    def read_buffered(self, size=64):
         """ Read data from the nmea port into a buffer.
         return List of lines that where read
         """
@@ -89,7 +87,6 @@ class Port(object):
                 c = self.read()
             if c == '\n': break
             line += c
-        #if __debug__: print '<-', line
         return line
 
     def write(self, data):
@@ -102,5 +99,4 @@ class Port(object):
         """ Write a line to the nmea port
         line - Line to write to the nmea port
         """
-        #if __debug__: print '->', line
         self.write(line + '\r\n')

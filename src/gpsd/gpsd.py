@@ -16,21 +16,22 @@
 # python GPSD.  If not, see <http://www.gnu.org/licenses/>.
 
 import dbus
+from dbus.mainloop.glib import DBusGMainLoop
 import dbus.service
 import gobject
-import nmea
+#import nmea
 import nmea.gps
 import optparse
 import sys
 
-from dbus.mainloop.glib import DBusGMainLoop
 
 __version__ = '0.1'
+
 
 GPSD_BUS_NAME = 'org.poweredbypenguins.gpsd'
 
 GPSD_OBJECT_PATH = '/org/poweredbypenguins/gpsd'
-GPSD_IFACE_NAME = 'org.poweredbypenguins.gpsd.gpsd'
+GPSD_IFACE_NAME = GPSD_BUS_NAME + '.gpsd'
 
 class GpsdObject(dbus.service.Object):
     def __init__(self, bus):
@@ -38,9 +39,9 @@ class GpsdObject(dbus.service.Object):
 
 
 GPS_OBJECT_PATH = '/org/poweredbypenguins/gpsd/GPS%d'
-GPS_IFACE_NAME = 'org.poweredbypenguins.gpsd.gps'
+GPS_IFACE_NAME = GPSD_BUS_NAME + '.gps'
 
-class GpsOject(dbus.service.Object):
+class GpsObject(dbus.service.Object):
     def __init__(self, port, bus, object_path):
         super(GpsObject, self).__init__(bus, object_path)
         self.gps_device = nmea.gps.Gps(port, callbacks={
@@ -75,7 +76,7 @@ class GpsOject(dbus.service.Object):
     def __satellite_status_update(self, gps_device):
         #print 'Satellite status update'
         pass
-    
+
     @dbus.service.method(dbus_interface=GPS_IFACE_NAME,
         out_signature='dd')
     def position(self):
@@ -95,7 +96,7 @@ class GpsOject(dbus.service.Object):
 def gps_object(options, bus, index=0):
     """  Create gps port and dbus object """
 
-    # Create GPS port 
+    # Create GPS port
     port = gps_port(options)
     if port is None:
         return None
@@ -120,7 +121,7 @@ def gps_port(options):
             timeout=options.timeout)
     else:
         return None
-    
+
 
 def get_options():
     """ Setup options structure """
@@ -129,7 +130,7 @@ def get_options():
         help='type of port to use: serial or tcp')
     p.add_option('--timeout', type='int', default=3,
         help='port read timeout (in seconds)')
-        
+
     g = optparse.OptionGroup(p, 'Serial Backend')
     g.add_option('--device', default='/dev/gps',
         help='device file of serial port connected to GPS')
@@ -158,10 +159,10 @@ def main():
         return 1
     else:
         bus.request_name(GPSD_BUS_NAME)
-    
+
     # Create device object
     gps_object0 = gps_object(options, bus)
-    
+
     # Start event loop
     loop = gobject.MainLoop()
     try:

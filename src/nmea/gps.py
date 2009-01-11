@@ -18,7 +18,7 @@
 
 import sys
 
-from parse import *
+from nmea.parse import *
 
 
 def excepted(f, *param):
@@ -38,6 +38,7 @@ class Gps(object):
         self.port = port
 
         if isinstance(callbacks, dict):
+            self.log_error = callbacks.get('log_error', None)
             self.fix_update = callbacks.get('fix_update', None)
             self.transit_update = callbacks.get('transit_update', None)
             self.satellite_update = callbacks.get('satellite_update', None)
@@ -61,10 +62,6 @@ class Gps(object):
         self.satellites = {}
         self.__satellites = {} # Internal satellite buffer
 
-    def error_message(self, message):
-        """ Print out an error message to stderr """
-        print >> sys.stderr, "ERROR:", message
-
     def handle_io(self, sourceFd=None, cb_condition=0):
         """ Call on loop to perform io operation
 
@@ -80,7 +77,7 @@ class Gps(object):
         except KeyboardInterrupt:
             raise
         except: # Use instead of finally as we want to handle keyboard interrupts
-            self.error_message("Unknown error: " + str(sys.exc_value))
+            self.__log_error('unknown error')
         return True
 
     def parse_data(self):
@@ -101,46 +98,45 @@ class Gps(object):
                 self.error_message(str(ex))
             else:
                 if sentence.source != "GP":
-                    self.error_message("Invalid source")
+                    self.__log_error("Invalid source")
                 else:
                     # Dispatch to message parser
                     mname = '_parse_' + sentence.message
                     if hasattr(self, mname):
                         method = getattr(self, mname)
                         if excepted(method, sentence):
-                            ex_type, ex_value, ex_traceback = sys.exc_info()
+                            self.__log_error('Parse error')
                             sys.exc_clear()
-                            print "Parse Error:", ex_value
                     else:
-                        self.error_message("Unknown message")
+                        self.__log_error("Unknown message")
+
+    def __log_error(self, message):
+        if self.log_error:
+            self.log_error(message, sys.exc_info())
 
     def __on_fix_update(self):
         if self.fix_update:
             if excepted(self.fix_update, self):
-                ex_type, ex_value, ex_traceback = sys.exc_info()
+                self.__log_error('"fix_update" raised an exception')
                 sys.exc_clear()
-                self.error_message('"fix_update" raised an exception: ' + str(ex_value))
 
     def __on_transit_update(self):
         if self.transit_update:
             if excepted(self.transit_update, self):
-                ex_type, ex_value, ex_traceback = sys.exc_info()
+                self.__log_error('"transit_update" raised an exception')
                 sys.exc_clear()
-                self.error_message('"transit_update" raised an exception: ' + str(ex_value))
 
     def __on_satellite_update(self):
         if self.satellite_update:
             if excepted(self.satellite_update, self):
-                ex_type, ex_value, ex_traceback = sys.exc_info()
+                self.__log_error('"satellite_update" raised an exception')
                 sys.exc_clear()
-                self.error_message('"satellite_update" raised an exception: ' + str(ex_value))
 
     def __on_satellite_status_update(self):
         if self.satellite_status_update:
             if excepted(self.satellite_status_update, self):
-                ex_type, ex_value, ex_traceback = sys.exc_info()
+                self.__log_error('"satellite_status_update" raised an exception')
                 sys.exc_clear()
-                self.error_message('"satellite_status_update" raised an exception: ' + str(ex_value))
 
     def _parse_GGA(self, sentence):
         """ Parse "Global Positioning System Fix Data" sentence """
@@ -219,28 +215,3 @@ class Gps(object):
         if self.fixType > 1:
             self.__on_transit_update()
 
-
-
-if __debug__ and __name__ == '__main__':
-    import tcpport
-    port = tcpport.TcpPort(port=11000, timeout=0)
-    #import serialport
-    #port = serialport.SerialPort(port='/dev/ttyUSB0')
-
-    def position_callback(gps):
-        print "Position", gps.position, "; Speed", gps.speed.kmph()
-
-    def fix_callback(gps):
-        print "Fix Quality:", gps.fixQuality, "; Type", gps.fixType
-
-    gpsCallbacks = {
-        'fix_update': fix_callback,
-        'transit_update': position_callback,
-    }
-
-    try:
-        gps = GPS(port, gpsCallbacks)
-        while True:
-            gps.parse_data()
-    finally:
-        port.close()

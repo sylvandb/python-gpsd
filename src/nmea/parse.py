@@ -19,8 +19,8 @@
 import array
 import datetime
 
-from __types import *
-from __constants import *
+from nmea._types import *
+from nmea.constants import *
 
 
 class ParseError(StandardError):

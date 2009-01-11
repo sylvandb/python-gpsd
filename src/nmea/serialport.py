@@ -18,7 +18,7 @@
 
 import serial
 
-from _port import *
+from nmea._port import *
 
 
 class SerialPort(Port):
@@ -65,11 +65,3 @@ class SerialPort(Port):
         """
         return self.ser.write(data)
 
-
-if __debug__ and __name__ == '__main__':
-    sp = SerialPort(device='/dev/ttyUSB0', timeout=3)
-    try:
-        while True:
-            print sp.read_buffered()
-    finally:
-        sp.close()

@@ -18,7 +18,7 @@
 
 import socket
 
-from _port import *
+from nmea._port import *
 
 
 class TcpPort(Port):

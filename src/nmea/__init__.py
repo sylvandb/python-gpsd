@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License along with
 # the NMEA Toolkit.  If not, see <http://www.gnu.org/licenses/>.
 
-from __types import *
-from __constants import *
+from nmea._types import *
+from nmea.constants import *
 
 __version__ = '0.2'
 __author__ = 'tim+python-gpsd@poweredbypenguins.org (Tim Savage)'
